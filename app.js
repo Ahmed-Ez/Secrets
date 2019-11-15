@@ -21,7 +21,7 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
-mongoose.connect("mongodb://localhost:27017/userDB",{useNewUrlParser:true,useUnifiedTopology:true});
+mongoose.connect(process.env.MONGO_URL,{useNewUrlParser:true,useUnifiedTopology:true});
 mongoose.set("useCreateIndex",true);
 
 const userSchema = new mongoose.Schema ({
@@ -134,6 +134,6 @@ req.login(newUser,function(err){
 
 
 
-app.listen(3000,function(){
-    console.log("Server running on port 3000");
-});
+app.listen(process.env.PORT || 3000, function() {
+    console.log("Server started on port 3000");
+  });
