@@ -26,7 +26,8 @@ mongoose.set("useCreateIndex",true);
 
 const userSchema = new mongoose.Schema ({
     username:String,
-    password:String
+    password:String,
+    secrets:[]
 });
 
 userSchema.plugin(passportLocalMongoose);
@@ -53,19 +54,41 @@ app.get("/register",function(req,res){
 
 app.get("/secrets",function(req,res){
     if(req.isAuthenticated()){
-        res.render("secrets");
+        User.findById(req.user.id,function(err,foundUser){
+            if(err) console.log(err);
+            else{
+                if(foundUser) res.render("secrets",{secrets:foundUser.secrets});
+                else console.log("user not found");
+            }
+        });
     }
     else{
         res.redirect("/login");
     }
 });
 
-app.get("/submit",function(req,res){
-    res.render("submit");
+// app.get("/:user",function(req,res){
+//     res.render("submit",{user:req.params.user});
+// });
+
+app.get("/submit/:user",function(req,res){
+    res.render("submit",{user:req.params.user});
 });
 
 app.get("/logout",function(req,res){
     req.logout();
+    res.redirect("/");
+});
+
+
+// app.post("/submit",function(req,res){
+//     console.log("lmao");
+// });
+
+app.post("/submit",function(req,res){
+    User.updateOne({username:req.body.userName},{$push:{secrets:req.body.secret}},function(err){
+        if(err) console.log(err);
+    });
     res.redirect("/");
 });
 
@@ -91,6 +114,9 @@ const newUser = User({
     password:req.body.password
 });
 
+
+
+
 req.login(newUser,function(err){
     if(err){
         console.log(err);
@@ -104,6 +130,8 @@ req.login(newUser,function(err){
 });
 
 });
+
+
 
 
 app.listen(3000,function(){
