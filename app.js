@@ -2,6 +2,7 @@
 require('dotenv').config();
 const express = require("express");
 const ejs = require("ejs");
+const _ = require("lodash");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const session = require('express-session');
@@ -57,7 +58,7 @@ app.get("/secrets",function(req,res){
         User.findById(req.user.id,function(err,foundUser){
             if(err) console.log(err);
             else{
-                if(foundUser) res.render("secrets",{secrets:foundUser.secrets});
+                if(foundUser) res.render("secrets",{secrets:foundUser.secrets,user:foundUser.username});
                 else console.log("user not found");
             }
         });
@@ -89,7 +90,7 @@ app.post("/submit",function(req,res){
     User.updateOne({username:req.body.userName},{$push:{secrets:req.body.secret}},function(err){
         if(err) console.log(err);
     });
-    res.redirect("/");
+    res.render("submitted");
 });
 
 app.post("/register",function(req,res){
